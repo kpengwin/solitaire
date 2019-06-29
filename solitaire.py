@@ -18,7 +18,7 @@ class Deck:
 
     def __init__(self, starting_cards=False):
         if isinstance(starting_cards, list) and all(isinstance(card, Card) for card in starting_cards):
-            self._cards=cards
+            self._cards=starting_cards
         else:
             self._cards=[Card(rank, suit) for suit in self.suits for rank in self.ranks]
 
@@ -32,8 +32,37 @@ class Deck:
         shuffle(self._cards)
         return
 
-my_deck1=Deck()
-my_deck2=Deck(my_deck1[:14])
-my_deck2.shuffle()
-for card in my_deck2:
+def deal(from_deck, to_deck, count):
+    try:
+        to_deck=Deck([card for card in reversed(from_deck[:count])] + to_deck[:])
+        from_deck=Deck(from_deck[count:])
+    except:
+        print("Oops, couldn't deal")
+    return (from_deck, to_deck)
+
+
+deck1=Deck()
+deck2=Deck([])
+
+for card in deck1:
     print(card)
+
+print()
+
+for card in deck2:
+    print(card)
+
+print()
+deck1, deck2 = deal(deck1, deck2, 3)
+
+for card in deck1:
+    print(card)
+
+print()
+
+for card in deck2:
+    print(card)
+
+
+
+
