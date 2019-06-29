@@ -34,35 +34,41 @@ class Deck:
 
 def deal(from_deck, to_deck, count):
     try:
-        to_deck=Deck([card for card in reversed(from_deck[:count])] + to_deck[:])
-        from_deck=Deck(from_deck[count:])
+        new_to_deck=Deck([card for card in reversed(from_deck[:count])] + to_deck[:])
+        new_from_deck=Deck(from_deck[count:])
     except:
         print("Oops, couldn't deal")
-    return (from_deck, to_deck)
+    return (new_from_deck, new_to_deck)
 
 
-deck1=Deck()
-deck2=Deck([])
+class Solitaire:
+    
+    def __init__(self):
+        #set up card piles
+        self.foundations=[Deck([]) for x in range(4)]
+        self.tableau=[Deck([]) for x in range(7)]
+        self.talon=Deck([])
+        self.stock=Deck()
 
-for card in deck1:
+        #prep cards
+        self.stock.shuffle()
+        for x in range(7):
+            self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x+1)
+
+game = Solitaire()
+
+
+print("Stock")
+for card in game.stock:
     print(card)
 
 print()
-
-for card in deck2:
-    print(card)
-
-print()
-deck1, deck2 = deal(deck1, deck2, 3)
-
-for card in deck1:
-    print(card)
-
-print()
-
-for card in deck2:
-    print(card)
-
-
+index=0
+for pile in game.tableau:
+    index+=1
+    print("Tableau Pile %i" % index)
+    for card in pile:
+        print(card)
+    print()
 
 
