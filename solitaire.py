@@ -5,12 +5,25 @@
 from random import shuffle
 
 class Card:
-    def __init__(self, rank='', suit=''):
+    def __init__(self, rank='', suit='', visible=True):
         self.rank=rank
         self.suit=suit
+        self.visible=visible
 
     def __repr__(self):
-        return 'Card(%s, %s)' % (self.rank, self.suit)
+        if self.visible:
+            return 'Card(%s, %s)' % (self.rank, self.suit)
+        else:
+            return 'Card(None, None)'
+    def __str__(self):
+        if self.visible:
+            return '%s of %s' % (self.rank, self.suit)
+        else:
+            return 'Upside-down card'
+
+    def flip(self):
+        self.visible = not self.visible
+        
 
 class Deck:
     ranks = [str(rank) for rank in range(2,11)]+list('JQKA')
@@ -40,6 +53,18 @@ def deal(from_deck, to_deck, count):
         print("Oops, couldn't deal")
     return (new_from_deck, new_to_deck)
 
+def move_stack(from_deck, to_deck, count):
+    try:
+        new_to_deck=Deck(from_deck[:count] + to_deck[:])
+        new_from_deck=Deck(from_deck[count:])
+    except:
+        print("Oops, couldn't move stack")
+    return (new_from_deck, new_to_deck)
+
+
+def flip_deck(deck):
+    for card in deck:
+        card.flip()
 
 class Solitaire:
     
@@ -53,26 +78,60 @@ class Solitaire:
         #prep cards
         self.stock.shuffle()
         for x in range(7):
-            self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x+1)
+            self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x)
+            flip_deck(self.tableau[x])
+            self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], 1)
+        flip_deck(self.stock)
 
     def __str__(self):
-        desc = "" 
-        desc += "Stock\n"
+        desc = ''
+        desc += 'Stock\n'
         for card in game.stock:
-            desc += "%s\n" % card
+            desc += '%s\n' % card
 
-        desc += "\n"
+        desc += '\nTalon\n'
+        for card in game.talon:
+            desc += '%s\n' % card
+
+        desc += '\n'
         index = 0
         for pile in game.tableau:
             index += 1
-            desc += "Tableau Pile %i\n" % index
+            desc += 'Tableau Pile %i\n' % index
             for card in pile:
-                desc += "%s\n" % card
-            desc += "\n"
+                desc += '%s\n' % card
+            desc += '\n'
         return desc
 
+    def transfer(self, from_index, to_index):
+        #validate
+
+        self.tableau[from_index], self.tableau[to_index] = move_stack(
+                self.tableau[from_index],
+                self.tableau[to_index],
+                1)
+        return
+
+    def build(self):
+        return
+
+    def flip_stock(self):
+        flip_deck(self.stock)
+        self.stock, self.talon = deal(self.stock, self.talon, 1)
+        flip_deck(self.stock)
+        return
        
 
 game = Solitaire()
+
+print(game)
+
+for x in range(3):
+    game.flip_stock()
+
+print(game)
+
+game.transfer(0, 1)
+
 print(game)
 
