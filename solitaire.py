@@ -55,20 +55,24 @@ class Solitaire:
         for x in range(7):
             self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x+1)
 
+    def __str__(self):
+        desc = "" 
+        desc += "Stock\n"
+        for card in game.stock:
+            desc += "%s\n" % card
+
+        desc += "\n"
+        index = 0
+        for pile in game.tableau:
+            index += 1
+            desc += "Tableau Pile %i\n" % index
+            for card in pile:
+                desc += "%s\n" % card
+            desc += "\n"
+        return desc
+
+       
+
 game = Solitaire()
-
-
-print("Stock")
-for card in game.stock:
-    print(card)
-
-print()
-index=0
-for pile in game.tableau:
-    index+=1
-    print("Tableau Pile %i" % index)
-    for card in pile:
-        print(card)
-    print()
-
+print(game)
 
