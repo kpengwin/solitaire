@@ -88,7 +88,15 @@ def flip_deck(deck):
         card.flip()
 
 class Solitaire:
-    
+    menu_instructions = ("Action Menu\n"
+                         "---------------\n"
+                         "- 'm [source] [dest]' to move from one tableau stack to another\n"
+                         "- 'b [source]' to move from a tableau stack to the foundations\n"
+                         "- 'p'[dest] to move from the talon to a tableau stack\n"
+                         "- 'f' to flip another card over from the stock\n"
+                         "- 'q' to quit\n"
+                        )
+
     def __init__(self):
         #set up card piles
         self.foundations=[Deck([]) for x in range(4)]
@@ -213,39 +221,61 @@ class Solitaire:
 
 def game_loop(game):
     #Show game
+    print(game)
+
+    #game loop
     while True:
+        print(game.menu_instructions)
         #Prompt for decision
+        decision = input('> ').split()
+        #for word in decision:
+        #    print(word)
         #Validate input
+        if len(decision) > 0:
+            if decision[0] == 'm':
+                game.transfer(int(decision[1])-1, int(decision[2])-1)
+                game.check_tableau()
+            elif decision[0] == 'b':
+                game.build(int(decision[1])-1)
+                game.check_tableau()
+            elif decision[0] == 'p':
+                game.put_to_play(int(decision[1])-1)
+            elif decision[0] == 'f':
+                game.flip_stock()
+            elif decision[0] == 'q':
+                break
         #Perform action
         #Check for victory
         #Show game
-        break
+        print(game)
+        
     return
 
 game = Solitaire()
+game_loop(game)
 
-print(game)
+#print(game)
+#
+#for x in range(3):
+#    game.flip_stock()
+#
+#print(game)
+#
+#game.transfer(1, 2)
+#game.check_tableau()
+#
+#print(game)
+#
+#for i in range(7):
+#    if game.build(i):
+#        print("successfully moved index %i to foundation" % (i+1))
+#    else:
+#        print("couldn't move index %i to foundation" % (i+1))
+#
+#game.check_tableau()
+#game.put_to_play(3)
 
-for x in range(3):
-    game.flip_stock()
-
-print(game)
-
-game.transfer(1, 2)
-game.check_tableau()
-
-print(game)
-
-for i in range(7):
-    if game.build(i):
-        print("successfully moved index %i to foundation" % (i+1))
-    else:
-        print("couldn't move index %i to foundation" % (i+1))
-
-game.check_tableau()
-game.put_to_play(3)
-
-print(game)
+#print(game)
 
 
 
