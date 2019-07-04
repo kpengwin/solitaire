@@ -135,13 +135,18 @@ class Solitaire:
 
     def transfer(self, from_index, to_index):
         #validate
-        #need to add transfering to empty pile
         transfer_depth = 0
         for card in self.tableau[from_index]:
             transfer_depth += 0
             if card.visible:
                 print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))
-                if self.tableau[from_index].can_stack(card, self.tableau[to_index][0]):
+                can_stack = False
+                if len(self.tableau[to_index]) == 0:
+                    if card.rank == self.tableau[to_index].ranks[:-1]:
+                        can_stack = True
+                elif self.tableau[from_index].can_stack(card, self.tableau[to_index][0]):
+                    can_stack = True
+                if can_stack:
                     print('Yes it can')
                     break
                 else:
