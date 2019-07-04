@@ -26,7 +26,7 @@ class Card:
         
 
 class Deck:
-    ranks = [str(rank) for rank in range(2,11)]+list('JQKA')
+    ranks = list('A')+[str(rank) for rank in range(2,11)]+list('JQK')
     suits = 'spades hearts diamonds clubs'.split()
 
     def __init__(self, starting_cards=False):
@@ -44,6 +44,17 @@ class Deck:
     def shuffle(self):
         shuffle(self._cards)
         return
+
+    def can_stack(self, top_card, base_card):
+        if ((base_card.suit == self.suits[0] or base_card.suit == self.suits[3])
+                and (top_card.suit == self.suits[1] or top_card.suit == self.suits[2])) or (
+                        (base_card.suit == self.suits[1] or base_card.suit == self.suits[2])
+                        and (top_card.suit == self.suits[0] or top_card.suit == self.suits[3])):
+                    if self.ranks.index(top_card.rank) - self.ranks.index(base_card.rank) == -1:
+                        return True
+        else:
+            return False
+                    #print('suits ok! %s can stack on %s' % (top_card.suit, base_card.suit))
 
 def deal(from_deck, to_deck, count):
     try:
@@ -105,11 +116,26 @@ class Solitaire:
 
     def transfer(self, from_index, to_index):
         #validate
-
-        self.tableau[from_index], self.tableau[to_index] = move_stack(
+        transfer_depth = 0
+        for card in self.tableau[from_index]:
+            transfer_depth += 0
+            if card.visible:
+                print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))
+                if self.tableau[from_index].can_stack(card, self.tableau[to_index][0]):
+                    print('Yes it can')
+                    break
+                else:
+                    print("No it can't")
+            else:
+                print("End of visible cards reached.")
+                transfer_depth = 0
+                break
+        
+        if transfer_depth:
+            self.tableau[from_index], self.tableau[to_index] = move_stack(
                 self.tableau[from_index],
                 self.tableau[to_index],
-                1)
+                transfer_depth)
         return
 
     def build(self):
@@ -120,6 +146,12 @@ class Solitaire:
         self.stock, self.talon = deal(self.stock, self.talon, 1)
         flip_deck(self.stock)
         return
+
+    def check_tableau(self):
+        for x in range(7):
+            if not self.tableau[x][0].visible:
+                self.tableau[x][0].flip()
+
        
 
 game = Solitaire()
@@ -131,7 +163,12 @@ for x in range(3):
 
 print(game)
 
-game.transfer(0, 1)
+game.transfer(1, 2)
+game.check_tableau()
 
 print(game)
+
+#print(game.stock.can_stack(Card('2', 'spades'), Card('4', 'hearts')))
+
+
 
