@@ -27,7 +27,7 @@ class Card:
 
 class Deck:
     ranks = list('A')+[str(rank) for rank in range(2,11)]+list('JQK')
-    suits = 'spades hearts diamonds clubs'.split()
+    suits = 'Spades Hearts Diamonds Clubs'.split()
 
     def __init__(self, starting_cards=False):
         if isinstance(starting_cards, list) and all(isinstance(card, Card) for card in starting_cards):
@@ -96,6 +96,15 @@ class Solitaire:
 
     def __str__(self):
         desc = ''
+
+        desc += 'Foundations\n'
+        for pile in game.foundations:
+            desc += pile.suits[game.foundations.index(pile)] + ' foundation.\n'
+            for card in pile:
+                desc += '%s\n' % card
+            desc += '\n'
+        desc += '\n'
+
         desc += 'Stock\n'
         for card in game.stock:
             desc += '%s\n' % card
@@ -116,11 +125,12 @@ class Solitaire:
 
     def transfer(self, from_index, to_index):
         #validate
+        #need to add transfering to empty pile
         transfer_depth = 0
         for card in self.tableau[from_index]:
             transfer_depth += 0
             if card.visible:
-                print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))
+                print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))self.tableau[source_index].ranks.index(self.foundations[suit_index][0].rank) 
                 if self.tableau[from_index].can_stack(card, self.tableau[to_index][0]):
                     print('Yes it can')
                     break
@@ -138,8 +148,17 @@ class Solitaire:
                 transfer_depth)
         return
 
-    def build(self):
-        return
+    def build(self, source_index):
+        card = self.tableau[source_index][0]
+        suit_index = self.tableau[source_index].suits.index(card.suit)
+        foundation_height = -1
+        if len(self.foundations[suit_index]) > 0:
+            foundation_height = self.tableau[source_index].ranks.index(self.foundations[suit_index][0].rank) 
+        if self.tableau[source_index].ranks.index(card.rank) - foundation_height == 1:
+            self.tableau[source_index] = Deck(self.tableau[source_index][1:])
+            self.foundations[suit_index] = Deck([card] + self.foundations[suit_index][:])
+            return True
+        return False
 
     def flip_stock(self):
         flip_deck(self.stock)
@@ -168,6 +187,15 @@ game.check_tableau()
 
 print(game)
 
+for i in range(7):
+    if game.build(i):
+        print("successfully moved index %i to foundation" % (i+1))
+    else:
+        print("couldn't move index %i to foundation" % (i+1))
+
+game.check_tableau()
+
+print(game)
 #print(game.stock.can_stack(Card('2', 'spades'), Card('4', 'hearts')))
 
 
