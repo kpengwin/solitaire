@@ -133,6 +133,29 @@ class Solitaire:
             desc += '\n'
         return desc
 
+    def put_to_play(self, to_index):
+        #validate
+        card = self.talon[0]
+        print("Does %s go on top of %s" % (card, self.tableau[to_index][0]))
+        can_stack = False
+        if len(self.tableau[to_index]) == 0:
+            if card.rank == self.tableau[to_index].ranks[:-1]:
+                can_stack = True
+        elif self.tableau[to_index].can_stack(card, self.tableau[to_index][0]):
+            can_stack = True
+        
+        if can_stack:
+            print('Yes it can')
+            self.talon, self.tableau[to_index] = move_stack(
+                    self.talon,
+                    self.tableau[to_index],
+                    1)
+        else:
+            print("No it can't")
+        
+        return
+
+
     def transfer(self, from_index, to_index):
         #validate
         transfer_depth = 0
@@ -186,7 +209,18 @@ class Solitaire:
             if not self.tableau[x][0].visible:
                 self.tableau[x][0].flip()
 
-       
+
+
+def game_loop(game):
+    #Show game
+    while True:
+        #Prompt for decision
+        #Validate input
+        #Perform action
+        #Check for victory
+        #Show game
+        break
+    return
 
 game = Solitaire()
 
@@ -209,6 +243,7 @@ for i in range(7):
         print("couldn't move index %i to foundation" % (i+1))
 
 game.check_tableau()
+game.put_to_play(3)
 
 print(game)
 
