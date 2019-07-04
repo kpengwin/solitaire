@@ -30,9 +30,13 @@ class Deck:
     suits = 'Spades Hearts Diamonds Clubs'.split()
 
     def __init__(self, starting_cards=False):
-        if isinstance(starting_cards, list) and all(isinstance(card, Card) for card in starting_cards):
+        if isinstance(starting_cards, list) and \
+            all(isinstance(card, Card)
+            for card in starting_cards):
+            #If we are given a list of cards, use that
             self._cards=starting_cards
         else:
+            #Otherwise make a standard deck
             self._cards=[Card(rank, suit) for suit in self.suits for rank in self.ranks]
 
     def __len__(self):
@@ -46,15 +50,21 @@ class Deck:
         return
 
     def can_stack(self, top_card, base_card):
-        if ((base_card.suit == self.suits[0] or base_card.suit == self.suits[3])
-                and (top_card.suit == self.suits[1] or top_card.suit == self.suits[2])) or (
-                        (base_card.suit == self.suits[1] or base_card.suit == self.suits[2])
-                        and (top_card.suit == self.suits[0] or top_card.suit == self.suits[3])):
-                    if self.ranks.index(top_card.rank) - self.ranks.index(base_card.rank) == -1:
-                        return True
+        if ((base_card.suit == self.suits[0] or
+             base_card.suit == self.suits[3]) and 
+            (top_card.suit == self.suits[1] or
+             top_card.suit == self.suits[2])) or \
+           ((base_card.suit == self.suits[1] or
+             base_card.suit == self.suits[2]) and 
+            (top_card.suit == self.suits[0] or
+             top_card.suit == self.suits[3])):
+            #If black on red or red on black
+            if self.ranks.index(top_card.rank) \
+                - self.ranks.index(base_card.rank) == -1:
+                #And the new card is one lower than the old
+                return True
         else:
             return False
-                    #print('suits ok! %s can stack on %s' % (top_card.suit, base_card.suit))
 
 def deal(from_deck, to_deck, count):
     try:
@@ -130,7 +140,7 @@ class Solitaire:
         for card in self.tableau[from_index]:
             transfer_depth += 0
             if card.visible:
-                print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))self.tableau[source_index].ranks.index(self.foundations[suit_index][0].rank) 
+                print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))
                 if self.tableau[from_index].can_stack(card, self.tableau[to_index][0]):
                     print('Yes it can')
                     break
@@ -196,7 +206,6 @@ for i in range(7):
 game.check_tableau()
 
 print(game)
-#print(game.stock.can_stack(Card('2', 'spades'), Card('4', 'hearts')))
 
 
 
