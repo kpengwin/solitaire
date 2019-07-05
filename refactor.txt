@@ -81,6 +81,7 @@ Solitaire
     XX - build(self, source_index)
     move(self, source, destination)  -- this replaces the above three
     check_tableau(self)
+    check_for_victory(self)
     _flip_stock(self)
     _flip_deck(self, deck) - replaces flip_deck
     _transfer_cards(self, from_deck, to_deck, count, inverted) - replaces deal/move_stack
