@@ -100,16 +100,14 @@ class Solitaire:
 
     def __init__(self):
         #set up card piles
-        self.piles = {
-                        ('foundation', x)   :   Deck([])    for x in range(4),
-                        ('tableau', x)      :   Deck([])    for x in range(7),
-                        'talon'             :   Deck([]),
-                        'stock'             :   Deck()      #all cards start here
-                     }
+        self.piles =       {('foundation', x)   :   Deck([])    for x in range(4) }
+        self.piles.update( {('tableau', x)      :   Deck([])    for x in range(7) } )
+        self.piles.update( {'talon'             :   Deck([]) } )
+        self.piles.update( {'stock'             :   Deck() } )      #all cards start here
 
         #grab a local copy of these for simplicity
-        self.suits = self.piles['stock'].piles
-        self.ranks = self.piles['stock'].rank
+        self.suits = self.piles['stock'].suits
+        self.ranks = self.piles['stock'].ranks
         #self.foundations=[Deck([]) for x in range(4)]
         #self.tableau=[Deck([]) for x in range(7)]
         #self.talon=Deck([])
@@ -118,36 +116,41 @@ class Solitaire:
         #prep cards
         self.piles['stock'].shuffle()
         for x in range(7):
-            self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x)
-            flip_deck(self.tableau[x])
-            self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], 1)
-        flip_deck(self.stock)
+            self._transfer_cards('stock', ('tableau', x), x)
+            self._flip_deck(('tableau', x))
+            self._transfer_cards('stock', ('tableau', x), 1)
+            #self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x)
+            #flip_deck(self.tableau[x])
+            #self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], 1)
+        self._flip_deck('stock') 
+        #flip_deck(self.stock)
 
     def __str__(self):
         desc = ''
+        tableaus = [('tableau', x) for x in range(7)]
+        foundations = [('foundation', x) for x in range(4)]
 
         desc += 'Foundations\n'
-        for pile in game.foundations:
-            desc += pile.suits[game.foundations.index(pile)] + ' foundation.\n'
-            for card in pile:
+        for pile in foundations:
+            desc += self.suits[pile[1]] + ' foundation.\n'
+            for card in self.piles[pile]:
                 desc += '%s\n' % card
             desc += '\n'
         desc += '\n'
 
         desc += 'Stock\n'
-        for card in game.stock:
+        for card in self.piles['stock']:
             desc += '%s\n' % card
 
         desc += '\nTalon\n'
-        for card in game.talon:
+        for card in self.piles['talon']:
             desc += '%s\n' % card
 
         desc += '\n'
         index = 0
-        for pile in game.tableau:
-            index += 1
-            desc += 'Tableau Pile %i\n' % index
-            for card in pile:
+        for pile in tableaus:
+            desc += 'Tableau Pile %i\n' % pile[1]
+            for card in self.piles[pile]:
                 desc += '%s\n' % card
             desc += '\n'
         return desc
@@ -240,7 +243,7 @@ class Solitaire:
 
 
     def flip_stock(self):
-        if len(self.stock) == 0:
+        if len(self.piles['stock']) == 0:
             self._transfer_cards('talon', 'stock', len(self.piles['talon']))
             self._flip_deck('stock')
         #    self.talon, self.stock = deal(self.talon, self.stock, len(self.talon))
@@ -261,22 +264,51 @@ class Solitaire:
     def move(self, source, dest):
         tableaus = [('tableau', x) for x in range(7)]
         foundations = [('foundation', x) for x in range(4)]
-        
+        if (source not in self.piles.keys()) or (not len(self.piles[source])):
+            return False
+
         #from: talon or tableaus
         #to: tableaus or foundation
         if dest in tableaus:
             if source == 'talon':
-                break # validate single card move
+                if len(self.piles[dest]):
+                    if self._can_stack(self.piles[source][0], self.piles[dest][0]):
+                        self._transfer_cards(source, dest, 1)
+                    else:
+                        return False
+                elif not (len(self.piles[dest]) and self.piles[source][0].rank == 'K'):
+                    self._transfer_cards(source, dest, 1)
+                else:
+                    return False
             elif source in tableaus:
-                break # validate move and count cards to move
-            else
+                transfer_depth = 0
+                valid_transfer = False
+                for card in self.piles[source]:
+                    transfer_depth += 1
+                    if card.visible == False:
+                        transfer_depth = 0
+                        break
+                    elif card.rank == 'K' and len(self.piles[dest]) == 0:
+                        valid_transfer = True
+                        break
+                    elif self._can_stack(card, self.piles[dest][0]):
+                        valid_transfer = True
+                        break
+                if valid_transfer:
+                    self._transfer_cards(source, dest, transfer_depth, in_place=True)
+                else:
+                    return False
+            else:
                 return False
         elif dest == 'foundation':
-            if source == 'talon':
-                break # validate move to foundation
-            elif source in tableaus:
-                break # validate move to foundation from this stack
-            else
+            if (source == 'talon' or source in tableaus):
+                card = self.piles[source][0]
+                foundation_height = len(self.piles[('foundation', self.ranks.index(card.rank))]) - 1
+                if self.ranks.index(card.rank) - 1 == foundation_height:
+                    self._transfer_cards(source, dest, 1)
+                else:
+                    return False
+            else:
                 return False
         else:
             return False
@@ -292,24 +324,27 @@ class Solitaire:
             return True
         return False
 
-    def _transfer_cards(self, source_key, dest_key, count, in_place=false):
-        assert source_key, dest_key in self.piles.keys(), "Invalid pile keys"
+    def _transfer_cards(self, source_key, dest_key, count, in_place=False):
+        assert source_key in self.piles.keys(), "Invalid pile keys"
+        assert dest_key in self.piles.keys(), "Invalid pile keys"
         assert count < len(self.piles[source_key]), "Not enough cards in %s" % source_key
 
         if in_place: 
             self.piles[dest_key] = Deck(self.piles[source_key][:count] 
                                         + self.piles[dest_key][:])
         else:
-            self.piles[dest_key] = Deck([card for card in reversed self.piles[source_key][:count]]
+            self.piles[dest_key] = Deck([card for card in reversed(self.piles[source_key][:count])]
                                         + self.piles[dest_key][:])
         
-        self.piles[source_key] = Deck(self.piles.[source_key][count:])
+        self.piles[source_key] = Deck(self.piles[source_key][count:])
         return
 
 
     def _can_stack(self, top_card, base_card):
-        if ((top_card.suit in self.suits[1:3]) and (base_card.suit not in self.suits[1:3])) or \
-                ((top_card.suit not in self.suits[1:3]) and (base_card.suit in self.suits[1:3])):
+        reds    = self.suits[1:3]
+        blacks  = [self.suits[0], self.suits[3]]
+        if ((top_card.suit in reds) and (base_card.suit in blacks)) or \
+                ((top_card.suit in blacks) and (base_card.suit in self.suits[1:3])):
             #If black on red or red on black
             if self.ranks.index(top_card.rank) \
                 - self.ranks.index(base_card.rank) == -1:

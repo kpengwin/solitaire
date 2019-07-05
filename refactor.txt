@@ -75,11 +75,11 @@ D   XX - talon
 D   XX - stock
 D   Consolidate all to piles (dict with Decks as values)
     -----------
-    __str__(self)
+D   __str__(self)
 D   XX - put_to_play(self, to_index)
 D   XX - transfer(self, from_index, to_index)
 D   XX - build(self, source_index)
-    move(self, source, dest)  -- this replaces the above three
+D   move(self, source, dest)  -- this replaces the above three
 D   check_tableau(self)
 D   victory(self)
 D   flip_stock(self)
