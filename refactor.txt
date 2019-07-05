@@ -1,0 +1,99 @@
+#Refactoring plan
+
+Current classes
+
+Card
+    rank
+    suit
+    visible
+    -----------
+    __repr__(self)
+    __str__(self)
+    flip(self)
+
+Deck
+    ranks
+    suits
+    _cards
+    -----------
+    __len__(self)
+    __getitem__(self)
+    shuffle(self)
+    can_stack(self)
+
+Solitaire
+    menu_instructions
+    foundations
+    tableau
+    talon
+    stock
+    -----------
+    __str__(self)
+    put_to_play(self, to_index)
+    transfer(self, from_index, to_index)
+    build(self, source_index)
+    flip_stock(self)
+    check_tableau(self)
+
+Standalone Functions
+
+deal(from_deck, to_deck, count)
+
+move_stack(from_deck, to_deck, count)
+
+flip_deck(deck)
+
+game_loop(game)
+
+
+#New plan
+
+Card
+    rank
+    suit
+    visible
+    -----------
+    __repr__(self)
+    __str__(self)
+    flip(self)
+
+Deck
+    ranks
+    suits
+    _cards
+    -----------
+    __len__(self)
+    __getitem__(self)
+    shuffle(self)
+    XX - can_stack(self)  MOVE TO Solitaire
+
+Solitaire
+    XX - menu_instructions MOVE TO game_loop
+    XX - foundations
+    XX - tableau
+    XX - talon
+    XX - stock
+    Consolidate all to piles (dict with Decks as values)
+    -----------
+    __str__(self)
+    XX - put_to_play(self, to_index)
+    XX - transfer(self, from_index, to_index)
+    XX - build(self, source_index)
+    move(self, source, destination)  -- this replaces the above three
+    check_tableau(self)
+    _flip_stock(self)
+    _flip_deck(self, deck) - replaces flip_deck
+    _transfer_cards(self, from_deck, to_deck, count, inverted) - replaces deal/move_stack
+
+
+Standalone Functions
+
+    XX - deal(from_deck, to_deck, count)
+
+    XX - move_stack(from_deck, to_deck, count)
+
+    XX - flip_deck(deck)
+
+    game_loop(game)
+
+
