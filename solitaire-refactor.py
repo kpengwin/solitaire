@@ -49,55 +49,8 @@ class Deck:
         shuffle(self._cards)
         return
 
-    #this can be super cleaned up with 'in' and slices
-    #def can_stack(self, top_card, base_card):
-    #    if ((base_card.suit == self.suits[0] or
-    #         base_card.suit == self.suits[3]) and 
-    #        (top_card.suit == self.suits[1] or
-    #         top_card.suit == self.suits[2])) or \
-    #       ((base_card.suit == self.suits[1] or
-    #         base_card.suit == self.suits[2]) and 
-    #        (top_card.suit == self.suits[0] or
-    #         top_card.suit == self.suits[3])):
-    #        #If black on red or red on black
-    #        if self.ranks.index(top_card.rank) \
-    #            - self.ranks.index(base_card.rank) == -1:
-    #            #And the new card is one lower than the old
-    #            return True
-    #    else:
-    #        return False
-
-#def deal(from_deck, to_deck, count):
-#    try:
-#        new_to_deck=Deck([card for card in reversed(from_deck[:count])] + to_deck[:])
-#        new_from_deck=Deck(from_deck[count:])
-#    except:
-#        print("Oops, couldn't deal")
-#    return (new_from_deck, new_to_deck)
-#
-#def move_stack(from_deck, to_deck, count):
-#    try:
-#        new_to_deck=Deck(from_deck[:count] + to_deck[:])
-#        new_from_deck=Deck(from_deck[count:])
-#    except:
-#        print("Oops, couldn't move stack")
-#    return (new_from_deck, new_to_deck)
-
-
-#def flip_deck(deck):
-#    for card in deck:
-#        card.flip()
 
 class Solitaire:
-#    menu_instructions = ("Action Menu\n"
-#                         "---------------\n"
-#                         "- 'm [source] [dest]' to move from one tableau stack to another\n"
-#                         "- 'b [source]' to move from a stack to the foundations, [source] t for talon\n"
-#                         "- 'p'[dest] to move from the talon to a tableau stack\n"
-#                         "- 'f' to flip another card over from the stock\n"
-#                         "- 'q' to quit\n"
-#                        )
-
     def __init__(self):
         #set up card piles
         self.piles =       {('foundation', x)   :   Deck([])    for x in range(4) }
@@ -108,10 +61,6 @@ class Solitaire:
         #grab a local copy of these for simplicity
         self.suits = self.piles['stock'].suits
         self.ranks = self.piles['stock'].ranks
-        #self.foundations=[Deck([]) for x in range(4)]
-        #self.tableau=[Deck([]) for x in range(7)]
-        #self.talon=Deck([])
-        #self.stock=Deck()
 
         #prep cards
         self.piles['stock'].shuffle()
@@ -119,11 +68,8 @@ class Solitaire:
             self._transfer_cards('stock', ('tableau', x), x)
             self._flip_deck(('tableau', x))
             self._transfer_cards('stock', ('tableau', x), 1)
-            #self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], x)
-            #flip_deck(self.tableau[x])
-            #self.stock, self.tableau[x] = deal(self.stock, self.tableau[x], 1)
         self._flip_deck('stock') 
-        #flip_deck(self.stock)
+
 
     def __str__(self):
         desc = ''
@@ -161,92 +107,13 @@ class Solitaire:
             desc += '\n'
         return desc
 
-#    def put_to_play(self, to_index):
-#        #validate
-#        card = self.talon[0]
-#        #print("Does %s go on top of %s" % (card, self.tableau[to_index][0]))
-#        can_stack = False
-#        if len(self.tableau[to_index]) == 0:
-#            if card.rank == 'K':
-#                can_stack = True
-#                print("it's a king")
-#        elif self.tableau[to_index].can_stack(card, self.tableau[to_index][0]):
-#            can_stack = True
-#        
-#        if can_stack:
-#            #print('Yes it can')
-#            self.talon, self.tableau[to_index] = move_stack(
-#                    self.talon,
-#                    self.tableau[to_index],
-#                    1)
-#        #else:
-#            #print("No it can't")
-#        
-#        return
-
-
-#    def transfer(self, from_index, to_index):
-#        #validate
-#        transfer_depth = 0
-#        for card in self.tableau[from_index]:
-#            transfer_depth += 1
-#            if transfer_depth > len(self.tableau[from_index]):
-#                break
-#            if card.visible:
-#                #print("Does %s go on top of %s?" % (card, self.tableau[to_index][0]))
-#                can_stack = False
-#                if len(self.tableau[to_index]) == 0:
-#                    if card.rank == 'K':
-#                        can_stack = True
-#                elif self.tableau[from_index].can_stack(card, self.tableau[to_index][0]):
-#                    can_stack = True
-#                if can_stack:
-#                    #print('Yes it can')
-#                    break
-#                #else:
-#                    #print("No it can't")
-#            else:
-#                #print("End of visible cards reached.")
-#                transfer_depth = 0
-#                break
-#        
-#        if transfer_depth:
-#            self.tableau[from_index], self.tableau[to_index] = move_stack(
-#                self.tableau[from_index],
-#                self.tableau[to_index],
-#                transfer_depth)
-#        return
-#
-#    #very ugly copy paste
-#    def build(self, source_index):
-#        if source_index == -1:
-#            card = self.talon[0]
-#            suit_index = self.talon.suits.index(card.suit)
-#            foundation_height = -1
-#            if len(self.foundations[suit_index]) > 0:
-#                foundation_height = self.talon.ranks.index(self.foundations[suit_index][0].rank) 
-#            if self.talon.ranks.index(card.rank) - foundation_height == 1:
-#                self.talon = Deck(self.talon[1:])
-#                self.foundations[suit_index] = Deck([card] + self.foundations[suit_index][:])
-#                return True
-#            return False
-#        else:
-#            card = self.tableau[source_index][0]
-#            suit_index = self.tableau[source_index].suits.index(card.suit)
-#            foundation_height = -1
-#            if len(self.foundations[suit_index]) > 0:
-#                foundation_height = self.tableau[source_index].ranks.index(self.foundations[suit_index][0].rank) 
-#            if self.tableau[source_index].ranks.index(card.rank) - foundation_height == 1:
-#                self.tableau[source_index] = Deck(self.tableau[source_index][1:])
-#                self.foundations[suit_index] = Deck([card] + self.foundations[suit_index][:])
-#                return True
-#            return False
 
     def _flip_deck(self, deck_key):
         assert deck_key in self.piles.keys(), "Can't flip, invalid pile."
         for card in self.piles[deck_key]:
             card.flip()
 
+    
     def _transfer_cards(self, source_key, dest_key, count, in_place=False):
         assert source_key in self.piles.keys(), "Invalid pile keys"
         assert dest_key in self.piles.keys(), "Invalid pile keys"
@@ -282,14 +149,12 @@ class Solitaire:
         if len(self.piles['stock']) == 0:
             self._transfer_cards('talon', 'stock', len(self.piles['talon']))
             self._flip_deck('stock')
-        #    self.talon, self.stock = deal(self.talon, self.stock, len(self.talon))
-        #    flip_deck(self.stock)
         
         self._flip_deck('stock')
         self._transfer_cards('stock', 'talon', 1)
-        #self.stock, self.talon = deal(self.stock, self.talon, 1)
         self._flip_deck('stock')
         return
+
 
     def check_tableau(self):
         for x in range(7):
@@ -351,6 +216,7 @@ class Solitaire:
             return False
         return True
 
+
     def victory(self):
         foundations = [('foundation', x) for x in range(4)]
         complete_stacks = 0
@@ -362,10 +228,7 @@ class Solitaire:
         return False
 
 
-
-
-            
-
+## end of classes
 
 
 def game_loop(game, menu_instructions):
@@ -377,9 +240,6 @@ def game_loop(game, menu_instructions):
         print(menu_instructions)
         #Prompt for decision
         decision = input('> ').split()
-        #for word in decision:
-        #    print(word)
-        #Validate input
         if len(decision) > 0:
             if decision[0] == 'm':
                 game.move(('tableau', int(decision[1])-1), ('tableau', int(decision[2])-1))
@@ -400,9 +260,6 @@ def game_loop(game, menu_instructions):
                 game.flip_stock()
             elif decision[0] == 'q':
                 break
-        #Perform action
-        #Check for victory
-        #Show game
         print(game)
         
     return
