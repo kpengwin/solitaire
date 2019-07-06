@@ -134,7 +134,7 @@ class Solitaire:
         reds    = self.suits[1:3]
         blacks  = [self.suits[0], self.suits[3]]
         if ((top_card.suit in reds) and (base_card.suit in blacks)) or \
-                ((top_card.suit in blacks) and (base_card.suit in self.suits[1:3])):
+                ((top_card.suit in blacks) and (base_card.suit in reds)):
             #If black on red or red on black
             if self.ranks.index(top_card.rank) \
                 - self.ranks.index(base_card.rank) == -1:
@@ -249,7 +249,6 @@ def game_loop(game, menu_instructions):
                     game.move('talon', 'foundation')
                 else:
                     game.move(('tableau', int(decision[1])-1), 'foundation')
-                    print(('tableau', int(decision[1])-1)) 
                     game.check_tableau()
                 if game.victory():
                     print("Yay you won!")
