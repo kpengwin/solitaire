@@ -149,9 +149,15 @@ class Solitaire:
         desc += '\n'
         index = 0
         for pile in tableaus:
-            desc += 'Tableau Pile %i\n' % pile[1]
+            count = 0
+            desc += 'Tableau Pile %i\n' % (pile[1] + 1)
             for card in self.piles[pile]:
-                desc += '%s\n' % card
+                if card.visible:
+                    desc += '%s\n' % card
+                else:
+                    count +=1
+            if count:
+                desc += 'Upside down cards (%i)\n' % count
             desc += '\n'
         return desc
 
@@ -241,6 +247,36 @@ class Solitaire:
         for card in self.piles[deck_key]:
             card.flip()
 
+    def _transfer_cards(self, source_key, dest_key, count, in_place=False):
+        assert source_key in self.piles.keys(), "Invalid pile keys"
+        assert dest_key in self.piles.keys(), "Invalid pile keys"
+        assert count <= len(self.piles[source_key]), "Not enough cards in pile"
+
+        if in_place: 
+            self.piles[dest_key] = Deck(self.piles[source_key][:count] 
+                                        + self.piles[dest_key][:])
+        else:
+            self.piles[dest_key] = Deck([card for card in reversed(self.piles[source_key][:count])]
+                                        + self.piles[dest_key][:])
+        
+        self.piles[source_key] = Deck(self.piles[source_key][count:])
+        return
+
+
+    def _can_stack(self, top_card, base_card):
+        reds    = self.suits[1:3]
+        blacks  = [self.suits[0], self.suits[3]]
+        if ((top_card.suit in reds) and (base_card.suit in blacks)) or \
+                ((top_card.suit in blacks) and (base_card.suit in self.suits[1:3])):
+            #If black on red or red on black
+            if self.ranks.index(top_card.rank) \
+                - self.ranks.index(base_card.rank) == -1:
+                #And the new card is one lower than the old
+                return True
+        
+        #Otherwise, the cards do not stack
+        return False
+
 
     def flip_stock(self):
         if len(self.piles['stock']) == 0:
@@ -288,9 +324,10 @@ class Solitaire:
                     if card.visible == False:
                         transfer_depth = 0
                         break
-                    elif card.rank == 'K' and len(self.piles[dest]) == 0:
-                        valid_transfer = True
-                        break
+                    elif len(self.piles[dest]) == 0:
+                        if (card.rank == 'K'):
+                            valid_transfer = True
+                            break
                     elif self._can_stack(card, self.piles[dest][0]):
                         valid_transfer = True
                         break
@@ -303,9 +340,9 @@ class Solitaire:
         elif dest == 'foundation':
             if (source == 'talon' or source in tableaus):
                 card = self.piles[source][0]
-                foundation_height = len(self.piles[('foundation', self.ranks.index(card.rank))]) - 1
+                foundation_height = len(self.piles[('foundation', self.suits.index(card.suit))]) - 1
                 if self.ranks.index(card.rank) - 1 == foundation_height:
-                    self._transfer_cards(source, dest, 1)
+                    self._transfer_cards(source, ('foundation', self.suits.index(card.suit)), 1)
                 else:
                     return False
             else:
@@ -324,35 +361,6 @@ class Solitaire:
             return True
         return False
 
-    def _transfer_cards(self, source_key, dest_key, count, in_place=False):
-        assert source_key in self.piles.keys(), "Invalid pile keys"
-        assert dest_key in self.piles.keys(), "Invalid pile keys"
-        assert count < len(self.piles[source_key]), "Not enough cards in %s" % source_key
-
-        if in_place: 
-            self.piles[dest_key] = Deck(self.piles[source_key][:count] 
-                                        + self.piles[dest_key][:])
-        else:
-            self.piles[dest_key] = Deck([card for card in reversed(self.piles[source_key][:count])]
-                                        + self.piles[dest_key][:])
-        
-        self.piles[source_key] = Deck(self.piles[source_key][count:])
-        return
-
-
-    def _can_stack(self, top_card, base_card):
-        reds    = self.suits[1:3]
-        blacks  = [self.suits[0], self.suits[3]]
-        if ((top_card.suit in reds) and (base_card.suit in blacks)) or \
-                ((top_card.suit in blacks) and (base_card.suit in self.suits[1:3])):
-            #If black on red or red on black
-            if self.ranks.index(top_card.rank) \
-                - self.ranks.index(base_card.rank) == -1:
-                #And the new card is one lower than the old
-                return True
-        
-        #Otherwise, the cards do not stack
-        return False
 
 
 
@@ -381,6 +389,7 @@ def game_loop(game, menu_instructions):
                     game.move('talon', 'foundation')
                 else:
                     game.move(('tableau', int(decision[1])-1), 'foundation')
+                    print(('tableau', int(decision[1])-1)) 
                     game.check_tableau()
                 if game.victory():
                     print("Yay you won!")
