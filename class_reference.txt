@@ -1,0 +1,43 @@
+Class reference
+
+Card
+    rank
+    suit
+    visible
+    -----------
+    __repr__(self)
+    __str__(self)
+    flip(self)
+
+Deck
+    ranks
+    suits
+    _cards
+    -----------
+    __len__(self)
+    __getitem__(self)
+    shuffle(self)
+
+Solitaire
+    piles - values are of type Deck()
+        (foundation, 0-6)
+        (tableau, 0-3)
+        talon
+        stock
+    suits
+    ranks
+    -----------
+    __str__(self)
+    _flip_deck(self, deck_key) - replaces flip_deck
+    _transfer_cards(self, source_key, dest_key, count, in_place) - replaces deal/move_stack
+    _can_stack(self, top_card, base_card)
+    flip_stock(self)
+    check_tableau(self)
+    move(self, source, dest)
+    victory(self)
+
+Standalone Functions
+
+    game_loop(game)
+
+

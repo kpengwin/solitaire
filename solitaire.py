@@ -265,6 +265,9 @@ def game_loop(game, menu_instructions):
                 print("Bad input.")
  
         print(game)
+        if game.victory():
+            print("\nCongratulations on your victory!")
+            break
         
     return
 
