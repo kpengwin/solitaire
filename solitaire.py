@@ -62,6 +62,7 @@ class Solitaire:
         self.suits = self.piles['stock'].suits
         self.ranks = self.piles['stock'].ranks
 
+
         #prep cards
         self.piles['stock'].shuffle()
         for x in range(7):
@@ -80,17 +81,16 @@ class Solitaire:
         for pile in foundations:
             desc += self.suits[pile[1]] + ' foundation.\n'
             for card in self.piles[pile]:
-                desc += '%s\n' % card
+                desc += '\t%s\n' % card
             desc += '\n'
         desc += '\n'
 
         desc += 'Stock\n'
-        for card in self.piles['stock']:
-            desc += '%s\n' % card
+        desc += '\tUpside down cards (%i)\n' % (len(self.piles['stock']))
 
         desc += '\nTalon\n'
         for card in self.piles['talon']:
-            desc += '%s\n' % card
+            desc += '\t%s\n' % card
 
         desc += '\n'
         index = 0
@@ -99,11 +99,11 @@ class Solitaire:
             desc += 'Tableau Pile %i\n' % (pile[1] + 1)
             for card in self.piles[pile]:
                 if card.visible:
-                    desc += '%s\n' % card
+                    desc += '\t%s\n' % card
                 else:
                     count +=1
             if count:
-                desc += 'Upside down cards (%i)\n' % count
+                desc += '\tUpside down cards (%i)\n' % count
             desc += '\n'
         return desc
 
@@ -240,34 +240,39 @@ def game_loop(game, menu_instructions):
         print(menu_instructions)
         #Prompt for decision
         decision = input('> ').split()
-        if len(decision) > 0:
-            if decision[0] == 'm':
-                game.move(('tableau', int(decision[1])-1), ('tableau', int(decision[2])-1))
-                game.check_tableau()
-            elif decision[0] == 'b':
-                if decision[1] == 't':
-                    game.move('talon', 'foundation')
-                else:
-                    game.move(('tableau', int(decision[1])-1), 'foundation')
-                    game.check_tableau()
-                if game.victory():
-                    print("Yay you won!")
+        if len(decision) == 1:
+            try:
+                if decision[0] == 'f':
+                    game.flip_stock()
+                elif decision[0] == 'q':
                     break
-            elif decision[0] == 'p':
-                game.move('talon', ('tableau', int(decision[1])-1))
-            elif decision[0] == 'f':
-                game.flip_stock()
-            elif decision[0] == 'q':
-                break
+            except:
+                print("Bad input.")
+        if len(decision) == 2:
+            try:
+                if decision[0] == 't':
+                    if decision[1] == 'f':
+                        game.move('talon', 'foundation')
+                    elif int(decision[1]) in range(1,8):
+                        game.move('talon', ('tableau', int(decision[1])-1))
+                elif int(decision[0]) in range(1,8):
+                    if decision[1] == 'f':
+                        game.move(('tableau', int(decision[0])-1), 'foundation')
+                    elif int(decision[1]) in range(1,8):
+                        game.move(('tableau', int(decision[0])-1), ('tableau', int(decision[1])-1))
+                    game.check_tableau()
+            except:
+                print("Bad input.")
+ 
         print(game)
         
     return
 
 menu_instructions = ("Action Menu\n"
                      "---------------\n"
-                     "- 'm [source] [dest]' to move from one tableau stack to another\n"
-                     "- 'b [source]' to move from a stack to the foundations, [source] t for talon\n"
-                     "- 'p'[dest] to move from the talon to a tableau stack\n"
+                     "- '[source] [dest]' to move from one stack to another\n"
+                     "   source: Use 1-7 for tableau stacks, t for talon\n"
+                     "   dest: use 1-7 for tableau stacks, f for foundation"
                      "- 'f' to flip another card over from the stock\n"
                      "- 'q' to quit\n"
                     )
