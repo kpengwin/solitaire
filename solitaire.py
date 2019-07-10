@@ -1,5 +1,6 @@
 #!/bin/env python3
 
+# Code by Kenneth Bruce, 2019
 # Thanks to Fluent Python by Luciano Ramalho for the start of the Deck class
 
 from random import shuffle
@@ -163,6 +164,9 @@ class Solitaire:
 
 
     def move(self, source, dest):
+        #given a source and destination, we validate and determine how many cards can be moved
+        #(in solitaire, there is only ever one number of cards that will be a valid move)
+
         tableaus = [('tableau', x) for x in range(7)]
         foundations = [('foundation', x) for x in range(4)]
         if (source not in self.piles.keys()) or (not len(self.piles[source])):
@@ -248,7 +252,7 @@ def game_loop(game, menu_instructions):
                     break
             except:
                 print("Bad input.")
-        if len(decision) == 2:
+        elif len(decision) == 2:
             try:
                 if decision[0] == 't':
                     if decision[1] == 'f':
